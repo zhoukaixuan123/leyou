@@ -1,11 +1,12 @@
 package com.leyou.item.controller;
 
+import com.leyou.common.enums.ExceptionEnum;
+import com.leyou.common.exception.LyException;
 import com.leyou.item.pojo.Item;
 import com.leyou.item.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 /*
@@ -29,9 +30,9 @@ public class ItemController {
     @PostMapping()
     public ResponseEntity<Item> getStr(Item item){
         if(item.getStudy_id() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null ) ;
+           throw  new LyException(ExceptionEnum.PRICE_CANNOT_BY_NUll);
         }
-
+        item  = itemService.saveItem(item);
         return ResponseEntity.status(HttpStatus.CREATED).body(item) ;
     }
 }
