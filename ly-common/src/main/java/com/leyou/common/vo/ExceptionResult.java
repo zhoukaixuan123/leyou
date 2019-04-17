@@ -11,8 +11,7 @@ import lombok.Data;
  */
 @Data
 public class ExceptionResult {
-
-    private int  stauts;
+       private int  stauts;
     private String message;
     private Long timestamp;
 

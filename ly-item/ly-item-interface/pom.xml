@@ -12,11 +12,13 @@
     <groupId>com.leyou.service</groupId>
     <artifactId>ly-item-interface</artifactId>
     <dependencies>
+
+
+        <!--只引通用mapper 核心-->
         <dependency>
-            <groupId>com.github.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
+            <groupId>tk.mybatis</groupId>
+            <artifactId>mapper-core</artifactId>
+            <version>1.0.4</version>
         </dependency>
     </dependencies>
 
