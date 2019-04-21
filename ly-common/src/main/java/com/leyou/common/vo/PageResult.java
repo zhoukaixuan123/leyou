@@ -3,7 +3,7 @@ package com.leyou.common.vo;
 import java.util.List;
 
 /*** 
-* @Description:  返回分页查询  公共类 
+* @Description:  返回分页查询  公共类
 * @Param:  
 * @return:  
 * @Author: zhoukx

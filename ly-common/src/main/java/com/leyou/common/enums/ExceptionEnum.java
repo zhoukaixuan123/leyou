@@ -16,9 +16,12 @@ import lombok.NoArgsConstructor;
 public enum ExceptionEnum {
 
    PRICE_CANNOT_BY_NUll(400,"价格不能为空！"),
-   CATEGORY_NOT_FONO(404,"商品分类没查到")
+   CATEGORY_NOT_FONO(404,"商品分类没查到"),
+    BRAND_NOT_FOUND (404,"品牌没有查到"),
+    BRAND_SAVE_ERROR (500,"插入数据失败"),
+    UPLOAD_FILE_ERROR( 500,"上传图片失败"),
+    INVALID_FILE_TYPE(400,"无效的参数类型")
     ;
-
     private int code;
     private String msg;
 

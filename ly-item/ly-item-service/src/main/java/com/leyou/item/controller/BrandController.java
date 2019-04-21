@@ -4,11 +4,11 @@ import com.leyou.common.vo.PageResult;
 import com.leyou.item.pojo.Brand;
 import com.leyou.item.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*
  *功能描述
@@ -33,4 +33,11 @@ public class BrandController {
 
         return  ResponseEntity.ok(brandService.queryBrandListPage(page,rows,sortBy,desc,key));
     }
+
+    @PostMapping()
+    public ResponseEntity<Void>  saveBrand(Brand brand,@RequestParam("cids") List<Long> cids){
+        this.brandService.saveBrand(brand, cids);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 }
