@@ -78,4 +78,17 @@ public class BrandService {
             }
         }
     }
+    public Brand quertById(Long id){
+        Brand brand = brandMapper.selectByPrimaryKey(id);
+        if(brand == null){
+            throw new LyException( ExceptionEnum.BRAND_SAVE_ERROR );
+        }
+        return  brand;
+    }
+
+    public List<Brand> queryBrandByCategory(Long cid) {
+        return this.brandMapper.queryByCategoryId(cid);
+    }
+
+
 }

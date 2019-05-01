@@ -2,6 +2,8 @@ package com.leyou.item.mapper;
 
 import com.leyou.item.pojo.Category;
 import org.springframework.stereotype.Component;
+import tk.mybatis.mapper.additional.idlist.IdListMapper;
+import tk.mybatis.mapper.common.IdsMapper;
 import tk.mybatis.mapper.common.Mapper;
 /*** 
 * @Description:   商品分类接口
@@ -12,5 +14,5 @@ import tk.mybatis.mapper.common.Mapper;
 */
 
 @Component
-public interface CategoryMapper extends Mapper<Category> {
+public interface CategoryMapper extends Mapper<Category>,IdListMapper<Category,Long> {
 }

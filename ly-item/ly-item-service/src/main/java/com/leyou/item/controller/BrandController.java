@@ -6,6 +6,7 @@ import com.leyou.item.service.BrandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,5 +40,22 @@ public class BrandController {
         this.brandService.saveBrand(brand, cids);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+    /**
+     * 根据分类查询品牌
+     * @param cid
+     * @return
+     */
+    @GetMapping("cid/{cid}")
+    public ResponseEntity<List<Brand>> queryBrandListByCid(@PathVariable("cid")Long cid){
+
+        List<Brand> brandList = this.brandService.queryBrandByCategory(cid);
+        if(CollectionUtils.isEmpty(brandList)){
+            // 响应404
+            return ResponseEntity.badRequest().build();
+        }
+        // 响应200
+        return ResponseEntity.ok(brandList);
+    }
+
 
 }
