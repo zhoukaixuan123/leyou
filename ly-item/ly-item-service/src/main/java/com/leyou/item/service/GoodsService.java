@@ -9,10 +9,7 @@ import com.leyou.item.mapper.SkuMapper;
 import com.leyou.item.mapper.SpuDetailMapper;
 import com.leyou.item.mapper.SpuMapper;
 import com.leyou.item.mapper.StockMapper;
-import com.leyou.item.pojo.Category;
-import com.leyou.item.pojo.Sku;
-import com.leyou.item.pojo.Spu;
-import com.leyou.item.pojo.Stock;
+import com.leyou.item.pojo.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +18,7 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.awt.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,22 +96,103 @@ public class GoodsService {
     * @Date: 2019/4/28 
     */ 
     @Transactional
-    public void save(Spu spu) {
+    public void   save(Spu spu) {
         // 保存spu
-        spu.setSaleable(true);
-        spu.setValid(true);
+        spu.setId(null);
         spu.setCreateTime(new Date());
         spu.setLastUpdateTime(spu.getCreateTime());
+        spu.setSaleable(true);
+        spu.setValid(false);
+
        int count =  this.spuMapper.insert(spu);
        if(count != 1){
             throw  new  LyException(ExceptionEnum.CREAT_CATE_SB);
        }
-        // 保存spu详情
-        spu.getSpuDetail().setSpuId(spu.getId());
-        this.spuDetailMapper.insert(spu.getSpuDetail());
 
-        // 保存sku和库存信息
+        // 新增deteil对象
+        SpuDetail detail = spu.getSpuDetail();
+        detail.setSpecTemplate(spu.getSpuDetail().getSpecialSpec());
+        detail.setSpecifications(spu.getSpuDetail().getDescription());
+        detail.setSpuId(spu.getId());
+
+        this.spuDetailMapper.insert(detail);
+
+        // 新增sku
+       // saveSkuAndStock(spu.getSkus(), spu.getId());
+        //定义库存集合
+        List<Stock> stockList = new ArrayList<>();
+        //新增sku
+        List<Sku> skus = spu.getSkus();
+        for (Sku sku: skus) {
+            sku.setCreateTime(new Date());
+            sku.setLastUpdateTime(sku.getCreateTime());
+            sku.setSpuId(spu.getId());
+
+            count = skuMapper.insert(sku);
+            if(count != 1){
+                 throw  new LyException(ExceptionEnum.CREAT_CATE_SB);
+            }
+
+
+            //新增库存
+            Stock stock = new Stock();
+            stock.setSkuId(sku.getId());
+            stock.setStock(sku.getStock());
+
+            stockList.add(stock);
+
+        }
+
+        //批量邢新增库存
+        stockMapper.insertList(stockList);
+
+    }
+
+    public SpuDetail querySpuDetailById(Long id) {
+        return this.spuDetailMapper.selectByPrimaryKey(id);
+    }
+
+    public List<Sku> querySkuBySpuId(Long spuId) {
+        // 查询sku
+        Sku record = new Sku();
+        record.setSpuId(spuId);
+        List<Sku> skus = this.skuMapper.select(record);
+        for (Sku sku : skus) {
+            // 同时查询出库存
+            sku.setStock(this.stockMapper.selectByPrimaryKey(sku.getId()).getStock());
+        }
+        return skus;
+    }
+
+    public void update(Spu spu) {
+        // 查询以前sku
+        List<Sku> skus = this.querySkuBySpuId(spu.getId());
+        // 如果以前存在，则删除
+        if(!CollectionUtils.isEmpty(skus)) {
+            List<Long> ids = skus.stream().map(s -> s.getId()).collect(Collectors.toList());
+            // 删除以前库存
+            Example example = new Example(Stock.class);
+            example.createCriteria().andIn("skuId", ids);
+            this.stockMapper.deleteByExample(example);
+
+            // 删除以前的sku
+            Sku record = new Sku();
+            record.setSpuId(spu.getId());
+            this.skuMapper.delete(record);
+
+        }
+        // 新增sku和库存
         saveSkuAndStock(spu.getSkus(), spu.getId());
+
+        // 更新spu
+        spu.setLastUpdateTime(new Date());
+        spu.setCreateTime(null);
+        spu.setValid(null);
+        spu.setSaleable(null);
+        this.spuMapper.updateByPrimaryKeySelective(spu);
+
+        // 更新spu详情
+        this.spuDetailMapper.updateByPrimaryKeySelective(spu.getSpuDetail());
     }
 
     private void saveSkuAndStock(List<Sku> skus, Long id) {
