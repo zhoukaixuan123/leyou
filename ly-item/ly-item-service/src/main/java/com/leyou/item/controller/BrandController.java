@@ -53,9 +53,18 @@ public class BrandController {
             // 响应404
             return ResponseEntity.badRequest().build();
         }
-        // 响应200
+        // 响应2 00
         return ResponseEntity.ok(brandList);
     }
 
+    /**
+     * 根据id 查询品牌
+     * @param id
+     * @return
+     */
+    @GetMapping("{id}")
+    public ResponseEntity<Brand> queryBrandById(@PathVariable("id") Long id){
+         return  ResponseEntity.ok(brandService.quertById(id));
+    }
 
 }

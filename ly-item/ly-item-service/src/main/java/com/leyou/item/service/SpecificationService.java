@@ -43,6 +43,7 @@ public class SpecificationService {
     * @Date: 2019/4/23 
     */ 
     public List<Specparam> queryparamByGid(Long gid,Long cid,Boolean searching) {
+
        Specparam specparam = new Specparam();
        specparam.setGroupId(gid);
        specparam.setCid(cid);

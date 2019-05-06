@@ -24,7 +24,9 @@ public enum ExceptionEnum {
     SELE_PARAM_NOT_FOND(500, "商品规格不存在"),
     GOODS_NOT_FOUND(500, "商品不存在"),
     CREAT_CATE_SB(500, "商品保存失败"),
+    SPEC_NOT_FOUNT(500,"商品规格参数不存在")
     ;
+
 
 
     private int code;

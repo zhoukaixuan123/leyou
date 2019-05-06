@@ -16,14 +16,14 @@ zuul:
           serviceId: upload-service
           strip-prefix: false  #去掉前缀
 ribbon:
-  ConnectTimeout: 1000 # 连接超时时间(ms)
-  ReadTimeout: 3500 # 通信超时时间(ms)
-  MaxAutoRetriesNextServer: 0 # 同一服务不同实例的重试次数
-  MaxAutoRetries: 0 # 同一实例的重试次数
+  ConnectTimeout: 10000 # 连接超时时间(ms)
+  ReadTimeout: 10000 # 通信超时时间(ms)
+  MaxAutoRetriesNextServer: 10 # 同一服务不同实例的重试次数
+  MaxAutoRetries: 10 # 同一实例的重试次数
 hystrix:
   command:
     default:
       execution:
         isolation:
           thread:
-            timeoutInMillisecond: 5000 # 熔断超时时长：10000ms
+            timeoutInMillisecond: 100000 # 熔断超时时长：10000ms
