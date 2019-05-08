@@ -2,6 +2,7 @@ package com.leyou.item.pojo;
 
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -27,8 +28,10 @@ public class SpuDetail {
     private String afterService;// 售后服务
     // 省略getter和setter
 
-    @Transient
+
+    @Column(name = "special_spec")
     private String  specialSpec;
-    @Transient
+
+    @Column(name = "generic_spec")
     private String  genericSpec;
 }

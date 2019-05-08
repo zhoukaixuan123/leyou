@@ -18,6 +18,6 @@ public interface SpecificationApi {
     List<Specparam> queryparamByList(
             @RequestParam(value = "gid" ,required=false) Long gid,
             @RequestParam(value = "cid" ,required=false) Long cid,
-            @RequestParam(value = "searching" ,required=false) Boolean searching
+            @RequestParam(value = "searching" ,required=false) String searching
     );
 }

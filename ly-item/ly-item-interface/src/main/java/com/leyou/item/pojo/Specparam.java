@@ -29,7 +29,7 @@ public class Specparam {
     private Boolean numeric;
     private String unit;
     private Boolean generic;
-    private  Boolean searching;
+    private  String searching;
     private String segments;
 
 

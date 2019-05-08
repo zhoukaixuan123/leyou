@@ -13,6 +13,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +52,7 @@ public class GoodsRepositoryTest {
         int size = 0;
         do {
             // 查询分页数据
-            PageResult<Spu> result = goodsClient.querySpuByPage(page, rows, true, null);
+            PageResult<Spu> result = goodsClient.querySpuByPage(page, rows, true,null  );
             List<Spu> spusList = result.getItems();
             if(CollectionUtils.isEmpty(spusList)){
                  break;
@@ -59,17 +60,20 @@ public class GoodsRepositoryTest {
             size = spusList.size();
             // 创建Goods集合
             List<Goods> goodsList = new ArrayList<>();
+
             // 遍历spu
             for (Spu spu : spusList) {
+                Goods goods = null;
                 try {
-                    Goods goods = this.searchService.buildGoods(spu);
+                    goods = this.searchService.buildGoods(spu);
                     goodsList.add(goods);
-                } catch (Exception e) {
-                    break;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+
             }
 
-            this.goodsRepository.saveAll(goodsList);
+           this.goodsRepository.saveAll(goodsList);
             page++;
         } while (size == 100);
     }

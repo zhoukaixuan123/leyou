@@ -52,6 +52,7 @@ public class SearchService {
     public Goods buildGoods(Spu spu) throws IOException {
         Goods goods = new Goods();
 
+
         // 查询商品分类名称
         List<Category> categories = this.categoryClient.queryNameByIds(Arrays.asList(spu.getCid1(), spu.getCid2(), spu.getCid3()));
        if(CollectionUtils.isEmpty(categories)){
@@ -90,20 +91,18 @@ public class SearchService {
         // 查询详情
         SpuDetail spuDetail = this.goodsClient.querySpuDetailById(spu.getId());
         // 查询规格参数
-        List<Specparam> params = specificationClient.queryparamByList(null, spu.getCid3(), true);
+        List<Specparam> params = specificationClient.queryparamByList(null, spu.getCid3(), "true");
         if(CollectionUtils.isEmpty(params)){
-            throw  new LyException(ExceptionEnum.SPEC_NOT_FOUNT);
+            return goods;
         }
-        //查询商品详情
-        SpuDetail spuDetail1 = goodsClient.querySpuDetailById(spu.getId());
-
+        //错在这里
         //获取通用规格参数
         Map<String, Object> genericSpecs = mapper.readValue(spuDetail.getGenericSpec(), new TypeReference<Map<String, Object>>() {
         });
         //获取特有的规格参数
         Map<String, Object> specialSpecs = mapper.readValue(spuDetail.getSpecialSpec(), new TypeReference<Map<String, List<String>>>() {
         });
-        // 获取可搜索的规格参数
+         //获取可搜索的规格参数
         Map<String, Object> specs = new HashMap<>();
         for (Specparam param : params) {
              //规格名称
@@ -111,8 +110,8 @@ public class SearchService {
             Object value = "";
             //判断是否是通用的规格
             if(param.getGeneric()){
-                value = genericSpecs.get(param.getId());
-                //判断是否是数值类型
+               value = genericSpecs.get(param.getId()+"");
+//                //判断是否是数值类型
                 if(param.getNumeric()){
                     //处理段
                   value = chooseSegment(value.toString(),param);
@@ -124,7 +123,7 @@ public class SearchService {
             specs.put(key,value);
         }
 
-        
+
 
         goods.setId(spu.getId());
         goods.setSubTitle(spu.getSubTitle());
@@ -139,6 +138,7 @@ public class SearchService {
         goods.setSpecs(specs);  //所有的可搜索的规格参数
         return goods;
     }
+
 
 
     private String chooseSegment(String value, Specparam p) {

@@ -23,7 +23,7 @@ public class CategoryClientTest {
 
     @Test
     public void testQueryCategories() {
-        List<Category> names = this.categoryClient.queryNameByIds(Arrays.asList(1L, 2L, 3L));
-        names.forEach(System.out::println);
+        //List<Category> names = this.categoryClient.queryNameByIds(Arrays.asList(1L, 2L, 3L));
+        //names.forEach(System.out::println);
     }
 }
