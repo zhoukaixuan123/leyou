@@ -6,15 +6,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leyou.common.enums.ExceptionEnum;
 import com.leyou.common.exception.LyException;
 import com.leyou.common.utils.JsonUtils;
+import com.leyou.common.vo.PageResult;
 import com.leyou.item.pojo.*;
 import com.leyou.search.client.BrandClient;
 import com.leyou.search.client.CategoryClient;
 import com.leyou.search.client.GoodsClient;
 import com.leyou.search.client.SpecificationClient;
 import com.leyou.search.pojo.Goods;
+import com.leyou.search.pojo.SearchRequest;
+import com.leyou.search.pojo.SearchResult;
+import com.leyou.search.repository.GoodsRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.repository.query.ElasticsearchStringQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -28,6 +46,7 @@ import java.util.stream.Collectors;
  * @date 2019/5/5$
  * @description 把数据导入到索引库$
  */
+@Slf4j
 @Service
 public class SearchService {
 
@@ -38,12 +57,19 @@ public class SearchService {
     private GoodsClient goodsClient;
 
     @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
+
+    @Autowired
     private SpecificationClient specificationClient;
 
     @Autowired
     private BrandClient brandClient;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private GoodsRepository goodsRepository;
+
 
     public Goods buildGoods() throws IOException {
         return buildGoods();
@@ -55,27 +81,27 @@ public class SearchService {
 
         // 查询商品分类名称
         List<Category> categories = this.categoryClient.queryNameByIds(Arrays.asList(spu.getCid1(), spu.getCid2(), spu.getCid3()));
-       if(CollectionUtils.isEmpty(categories)){
-           throw  new LyException(ExceptionEnum.CATEGORY_NOT_FONO);
-       }
-       //转换成名称的 list
-       List<String> names =  categories.stream().map(Category::getName).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(categories)) {
+            throw new LyException(ExceptionEnum.CATEGORY_NOT_FONO);
+        }
+        //转换成名称的 list
+        List<String> names = categories.stream().map(Category::getName).collect(Collectors.toList());
 
-       //查询品牌
+        //查询品牌
         Brand brand = brandClient.queryBrandById(spu.getBrandId());
-        if(brand ==null){
-            throw  new LyException(ExceptionEnum.CATEGORY_NOT_FONO);
+        if (brand == null) {
+            throw new LyException(ExceptionEnum.CATEGORY_NOT_FONO);
         }
         // 查询sku
         List<Sku> skusList = this.goodsClient.querySkuBySpuId(spu.getId());
-        if(CollectionUtils.isEmpty(skusList)){
-            throw  new LyException(ExceptionEnum.CATEGORY_NOT_FONO);
+        if (CollectionUtils.isEmpty(skusList)) {
+            throw new LyException(ExceptionEnum.CATEGORY_NOT_FONO);
         }
         //价格集合
         Set<Long> prices = new HashSet<>();
         // 处理sku，仅封装id、价格、标题、图片，并获得价格集合
         List<Map<String, Object>> skuList = new ArrayList<>();
-        for(Sku sku:skusList){
+        for (Sku sku : skusList) {
             Map<String, Object> skuMap = new HashMap<>();
             skuMap.put("id", sku.getId());
             skuMap.put("title", sku.getTitle());
@@ -83,16 +109,16 @@ public class SearchService {
             skuMap.put("image", StringUtils.isBlank(sku.getImages()) ? "" : StringUtils.split(sku.getImages(), ",")[0]);
             skuList.add(skuMap);
             prices.add(sku.getPrice());
-        };
+        }
 
         //拿价格
-        Set<Long>  priceList= skusList.stream().map(Sku::getPrice).collect(Collectors.toSet());
+        Set<Long> priceList = skusList.stream().map(Sku::getPrice).collect(Collectors.toSet());
 
         // 查询详情
         SpuDetail spuDetail = this.goodsClient.querySpuDetailById(spu.getId());
         // 查询规格参数
         List<Specparam> params = specificationClient.queryparamByList(null, spu.getCid3(), "true");
-        if(CollectionUtils.isEmpty(params)){
+        if (CollectionUtils.isEmpty(params)) {
             return goods;
         }
         //错在这里
@@ -102,27 +128,26 @@ public class SearchService {
         //获取特有的规格参数
         Map<String, Object> specialSpecs = mapper.readValue(spuDetail.getSpecialSpec(), new TypeReference<Map<String, List<String>>>() {
         });
-         //获取可搜索的规格参数
+        //获取可搜索的规格参数
         Map<String, Object> specs = new HashMap<>();
         for (Specparam param : params) {
-             //规格名称
+            //规格名称
             String key = param.getName();
             Object value = "";
             //判断是否是通用的规格
-            if(param.getGeneric()){
-               value = genericSpecs.get(param.getId()+"");
+            if (param.getGeneric()) {
+                value = genericSpecs.get(param.getId() + "");
 //                //判断是否是数值类型
-                if(param.getNumeric()){
+                if (param.getNumeric()) {
                     //处理段
-                  value = chooseSegment(value.toString(),param);
+                    value = chooseSegment(value.toString(), param);
                 }
-            }else {
+            } else {
                 value = specialSpecs.get(param.getId());
 
             }
-            specs.put(key,value);
+            specs.put(key, value);
         }
-
 
 
         goods.setId(spu.getId());
@@ -140,7 +165,6 @@ public class SearchService {
     }
 
 
-
     private String chooseSegment(String value, Specparam p) {
         double val = NumberUtils.toDouble(value);
         String result = "其它";
@@ -150,16 +174,16 @@ public class SearchService {
             // 获取数值范围
             double begin = NumberUtils.toDouble(segs[0]);
             double end = Double.MAX_VALUE;
-            if(segs.length == 2){
+            if (segs.length == 2) {
                 end = NumberUtils.toDouble(segs[1]);
             }
             // 判断是否在范围内
-            if(val >= begin && val < end){
-                if(segs.length == 1){
+            if (val >= begin && val < end) {
+                if (segs.length == 1) {
                     result = segs[0] + p.getUnit() + "以上";
-                }else if(begin == 0){
+                } else if (begin == 0) {
                     result = segs[1] + p.getUnit() + "以下";
-                }else{
+                } else {
                     result = segment + p.getUnit();
                 }
                 break;
@@ -167,4 +191,71 @@ public class SearchService {
         }
         return result;
     }
+
+    /***
+     * @Description: es   搜锁分页封装
+     * @Param: [request]
+     * @return: java.lang.Object
+     * @Author: zhoukx
+     * @Date: 2019/5/9
+     */
+    public PageResult<Goods> search(SearchRequest request) {
+        int page = request.getPage()-1;  //es  从0开始
+        int size = request.getSize();
+        //创建查询构造器
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        //结果过滤   不需要的字段过滤器
+        queryBuilder.withSourceFilter(new FetchSourceFilter(new  String []{"id","subTitle","skus"},null));
+        //1 分页
+        queryBuilder.withPageable(PageRequest.of(page, size));
+        //2 过滤
+        queryBuilder.withQuery(QueryBuilders.matchQuery("all", request.getKey()));
+        //聚合分类和品牌信息
+        //聚合分类
+        String categoryAggName = "category_agg";
+        queryBuilder.addAggregation(AggregationBuilders.terms(categoryAggName).field("cid3"));
+        //聚合品牌
+        String brandAggName = "brand_agg";
+        queryBuilder.addAggregation(AggregationBuilders.terms(brandAggName).field("brandId"));
+        //查询  执行查询的操作
+        AggregatedPage<Goods> result = elasticsearchTemplate.queryForPage(queryBuilder.build(),Goods.class);
+        //3 解析结果
+        long total = result.getTotalElements();
+        int totalPage = result.getTotalPages();
+        //想要的实体截国
+        List<Goods> goodsList = result.getContent();
+        //处理聚合结果
+        Aggregations aggs = result.getAggregations();
+        List<Category> categories = parseCategoryAgg(aggs.get(categoryAggName));
+        List<Brand> brands = parseBrandAgg(aggs.get(brandAggName));
+
+        return new SearchResult(total,(long)totalPage,goodsList,categories,brands);
+    }
+
+    private List<Brand> parseBrandAgg(LongTerms terms) {
+        try {
+        List<Long> ids = terms.getBuckets().
+                stream().map(b -> b.getKeyAsNumber().longValue()).collect(Collectors.toList());
+        List<Brand> brands =  brandClient.quertBrandByIds(ids);
+            return  brands;
+        }catch (Exception e){
+            log.error("【搜索服务异常】brand：" ,e);
+             return  null;
+        }
+
+    }
+
+    private List<Category> parseCategoryAgg(LongTerms terms) {
+        try {
+            List<Long> ids = terms.getBuckets().
+                    stream().map(b -> b.getKeyAsNumber().longValue()).collect(Collectors.toList());
+            List<Category> categories = categoryClient.queryNameByIds(ids);
+            return categories;
+        } catch (Exception e) {
+            log.error("【搜索服务异常】categories：" ,e);
+            return null;
+        }
+    }
+
+
 }

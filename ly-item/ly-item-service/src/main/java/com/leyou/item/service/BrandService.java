@@ -7,11 +7,15 @@ import com.leyou.common.exception.LyException;
 import com.leyou.common.vo.PageResult;
 import com.leyou.item.mapper.BrandMapper;
 import com.leyou.item.pojo.Brand;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
@@ -22,6 +26,7 @@ import java.util.List;
  * @date 2019/4/17$
  * @description 品牌管理$
  */
+@Slf4j
 @Service
 public class BrandService {
 
@@ -91,4 +96,12 @@ public class BrandService {
     }
 
 
+    public List<Brand> quertByIds(List<Long> ids) {
+       List<Brand> brands =  brandMapper.selectByIdList(ids);
+       if(CollectionUtils.isEmpty(brands)){
+           log.error("Brand品牌信息没有查到++++++++++++");
+            throw  new LyException(ExceptionEnum.BRAND_NOT_FOUND);
+       }
+        return  brands;
+    }
 }
