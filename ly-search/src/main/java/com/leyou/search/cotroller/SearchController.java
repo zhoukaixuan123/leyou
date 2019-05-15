@@ -30,6 +30,7 @@ public class SearchController {
     */
     @PostMapping("page")
     public ResponseEntity<PageResult<Goods>> search(@RequestBody SearchRequest request){
+
      return    ResponseEntity.ok(searchService.search(request));
     }
 }
