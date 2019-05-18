@@ -52,4 +52,10 @@ public class SpecificationController {
     ){
         return  ResponseEntity.ok(specificationService.queryparamByGid(gid,cid,searching));
      }
+
+    // 查询规格参数组，及组内参数
+    @GetMapping("group")
+    public ResponseEntity<List<Specification>> queryListById(@RequestParam("cid") Long cid){
+         return  ResponseEntity.ok(specificationService.queryListByCid(cid));
+    }
 }

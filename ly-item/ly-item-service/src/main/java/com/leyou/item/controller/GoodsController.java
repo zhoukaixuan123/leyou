@@ -100,4 +100,14 @@ public class GoodsController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     *   根据id查询spu
+     * @param id
+     * @return
+     */
+    @GetMapping("spu/{id}")
+    public  ResponseEntity<Spu> querySpuById(@PathVariable("id") Long id ){
+        return  ResponseEntity.ok(goodsService.querySpuById(id));
+     }
 }

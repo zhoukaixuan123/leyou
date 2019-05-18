@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+     <h1>
+         欢迎:
+     </h1>
+     <br>12312312321
+    <tr th:each="user : ${users}">
+        <spn  th:text="${user.name}"></spn>
+        <spn  th:text="${user.age}"></spn>
+    </tr>
+</body>
+</html>

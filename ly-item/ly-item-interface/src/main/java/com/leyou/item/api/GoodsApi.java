@@ -20,7 +20,7 @@ import java.util.List;
 public interface GoodsApi {
 
     /**
-     * @Description:  查询SpuDetail接口
+     * @Description: 查询SpuDetail接口
      * @Param: [id]
      * @return: org.springframework.http.ResponseEntity<com.leyou.item.pojo.SpuDetail>
      * @Author: zhoukx
@@ -30,9 +30,9 @@ public interface GoodsApi {
     SpuDetail querySpuDetailById(@PathVariable("id") Long id);
 
     /**
-     * @Description:  查询sku
+     * @Description: 查询sku
      * @Param: [id]
-     * @return: org.springframework.http.ResponseEntity<List<Sku>>
+     * @return: org.springframework.http.ResponseEntity<List   <   Sku>>
      * @Author: zhoukx
      * @Date: 2019/5/2
      */
@@ -41,6 +41,7 @@ public interface GoodsApi {
 
     /**
      * 分页查询SPU
+     *
      * @param page
      * @param rows
      * @param key
@@ -50,6 +51,17 @@ public interface GoodsApi {
     PageResult<Spu> querySpuByPage(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "rows", defaultValue = "5") Integer rows,
-            @RequestParam(value = "saleable" ,required = false) Boolean saleable,
+            @RequestParam(value = "saleable", required = false) Boolean saleable,
             @RequestParam(value = "key", required = false) String key);
+
+    /**
+     * 根据id查询spu
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("spu/{id}")
+  Spu querySpuById(@PathVariable("id") Long id);
 }
+
+
