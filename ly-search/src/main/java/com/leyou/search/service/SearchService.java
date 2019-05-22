@@ -79,7 +79,6 @@ public class SearchService {
     public Goods buildGoods(Spu spu) throws IOException {
         Goods goods = new Goods();
 
-
         // 查询商品分类名称
         List<Category> categories = this.categoryClient.queryNameByIds(Arrays.asList(spu.getCid1(), spu.getCid2(), spu.getCid3()));
         if (CollectionUtils.isEmpty(categories)) {
@@ -339,4 +338,35 @@ public class SearchService {
     }
 
 
+    /*** 
+    * @Description:     索引库保存 
+    * @Param: [spuId] 
+    * @return: void 
+    * @Author: zhoukx
+    * @Date: 2019/5/22 
+    */ 
+    public void createOrUpdate(Long spuId) {
+        //查询spu
+        Spu spu = goodsClient.querySpuById(spuId);
+        //构建goods 对象
+        try {
+            Goods goods = buildGoods(spu);
+            //存到索引库
+            goodsRepository.save(goods);
+           
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*** 
+    * @Description:  删除索引
+    * @Param: [spuId] 
+    * @return: void 
+    * @Author: zhoukx
+    * @Date: 2019/5/22 
+    */ 
+    public void deleteIndex(Long spuId) {
+        goodsRepository.deleteById(spuId);
+    }
 }

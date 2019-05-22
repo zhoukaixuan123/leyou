@@ -57,8 +57,6 @@ public class PageService {
         //查询规格参数
         Long cid3 = spu.getCid3();
         List<Specification> specs = specificationClient.querySpecsByCid(cid3);
-        // map.put("title", spu.getTitle());
-        // map.put("subTitle", spu.getSubTitle());
         map.put("spu", spu);
         map.put("skus", skus);
         map.put("detail", detail);
@@ -81,6 +79,9 @@ public class PageService {
             context.setVariables(map);
             //写入文件
             File file = new File("F:\\upload\\page",spuId+".html");
+            if(file.exists()){
+                file.delete();
+            }
             writer = new PrintWriter(file,"UTF-8");
             engine.process("item", context, writer);
         } catch (Exception ex) {
@@ -95,4 +96,10 @@ public class PageService {
 
     }
 
+    public void deleteHtml(Long spuId) {
+        File file = new File("F:\\upload\\page",spuId+".html");
+       if(file.exists()){
+           file.delete();
+       }
+    }
 }

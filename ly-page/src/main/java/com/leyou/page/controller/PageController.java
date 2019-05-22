@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Map;
 
-/*
+/**
  *功能描述
  * @author zhoukx
  * @date 2019/5/16$
@@ -20,6 +20,7 @@ public class PageController {
 
     @Autowired
     private PageService pageService;
+
 
     @GetMapping("item/{id}.html")
     public  String  toItemPage(@PathVariable("id") Long spuId,Model model){
