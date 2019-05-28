@@ -8,6 +8,8 @@ spring:
     username: leyou
     password: leyou
     virtual-host: /leyou
+  redis:
+    host: 192.168.72.129
 ly:
    sms:
      accessKeyId: LTAIRGFeJyYuN52i  #短信ID

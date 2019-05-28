@@ -24,9 +24,11 @@ public enum ExceptionEnum {
     SELE_PARAM_NOT_FOND(500, "商品规格不存在"),
     GOODS_NOT_FOUND(500, "商品不存在"),
     CREAT_CATE_SB(500, "商品保存失败"),
-    SPEC_NOT_FOUNT(500,"商品规格参数不存在")
+    SPEC_NOT_FOUNT(500,"商品规格参数不存在"),
+    INVALD_USE_DATA_TYPE(400,"用户数据类型不正确"),
+    INVALID_VERIFY_CODE(400,"无效的验证码"),
+    INVALID_USERNAME_PASSWORD(400,"用户名或者密码错误")
     ;
-
 
 
     private int code;
