@@ -27,8 +27,11 @@ public enum ExceptionEnum {
     SPEC_NOT_FOUNT(500,"商品规格参数不存在"),
     INVALD_USE_DATA_TYPE(400,"用户数据类型不正确"),
     INVALID_VERIFY_CODE(400,"无效的验证码"),
-    INVALID_USERNAME_PASSWORD(400,"用户名或者密码错误")
+    INVALID_USERNAME_PASSWORD(400,"用户名或者密码错误"),
+    USERNAME_OR_PASSWORD_ERROR(400,"授权中心用户密码错误"),
+    USER_NOTFOUND(400,"用户未授权")
     ;
+
 
 
     private int code;

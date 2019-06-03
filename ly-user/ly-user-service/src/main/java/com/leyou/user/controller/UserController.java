@@ -77,7 +77,7 @@ public class UserController {
     * @Date: 2019/5/28
     */
     @GetMapping("/query")
-    public ResponseEntity<User> queryByUsernameAndPassWord(
+    public ResponseEntity<User> queryByUsernameAndPassword(
             @RequestParam("username") String username,
             @RequestParam("password") String password
     ){

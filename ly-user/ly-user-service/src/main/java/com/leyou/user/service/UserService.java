@@ -91,10 +91,14 @@ public class UserService {
         if (!StringUtils.equals(code, cachePhone)) {
             throw new LyException(ExceptionEnum.INVALID_VERIFY_CODE);
         }
+        //生成盐
+        String salt = CodecUtils.generateSalt();
+        user.setSalt(salt);
 
+        //生成密码
+        String md5Pwd = CodecUtils.md5Hex(user.getPassword(), user.getSalt());
         //对密码进行加密
-        user.setPassword(CodecUtils.passwordBcryptEncode(user.getUsername(), user.getPassword()));
-        user.setSalt(user.getUsername());
+        user.setPassword(md5Pwd);
         user.setCreated(new Date());
         //写入数据库
         userMapper.insert(user);
@@ -110,8 +114,9 @@ public class UserService {
         if(user == null){
             throw  new  LyException(ExceptionEnum.INVALID_USERNAME_PASSWORD);
         }
-        //校验密码
-       if( !StringUtils.equals(user.getPassword(),CodecUtils.passwordBcryptEncode(user.getUsername(),password))){
+        //校验密码  f637c99e64ced75d1c58d3061d8b99a0  c97ee47294955604c0af78f83b3c735a
+        String pwd =CodecUtils.md5Hex(password, user.getSalt());
+       if( !StringUtils.equals(pwd,user.getPassword())){
            throw  new  LyException(ExceptionEnum.INVALID_USERNAME_PASSWORD);
        }
        //用户密码正确
