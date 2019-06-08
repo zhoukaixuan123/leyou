@@ -1,13 +1,13 @@
 package com.leyou.item.api;
 
+import com.leyou.common.dto.CartDto;
 import com.leyou.common.vo.PageResult;
 import com.leyou.item.pojo.Sku;
 import com.leyou.item.pojo.Spu;
 import com.leyou.item.pojo.SpuDetail;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -62,6 +62,28 @@ public interface GoodsApi {
      */
     @GetMapping("spu/{id}")
   Spu querySpuById(@PathVariable("id") Long id);
+
+
+    /**
+     * @Description: 根据sku的id查询所有sku
+     * @Param: [id]
+     * @return: org.springframework.http.ResponseEntity<List<Sku>>
+     * @Author: zhoukx
+     * @Date: 2019/5/2
+     */
+    @GetMapping("sku/list/ids")
+    List<Sku> querySkuByIds(@RequestParam("ids") List<Long> ids);
+
+    /***
+     * @Description:   减库存操作
+     * @Param: [cartDtos]
+     * @return: org.springframework.http.ResponseEntity<java.lang.Void>
+     * @Author: zhoukx
+     * @Date: 2019/6/8
+     */
+    @PostMapping("stock/decrease")
+    void decreaseStock(@RequestBody List<CartDto> cartDtos);
+
 }
 
 
