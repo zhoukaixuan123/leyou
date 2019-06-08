@@ -110,4 +110,18 @@ public class GoodsController {
     public  ResponseEntity<Spu> querySpuById(@PathVariable("id") Long id ){
         return  ResponseEntity.ok(goodsService.querySpuById(id));
      }
+
+    /**
+     * @Description: 根据sku的id查询所有sku
+     * @Param: [id]
+     * @return: org.springframework.http.ResponseEntity<List<Sku>>
+     * @Author: zhoukx
+     * @Date: 2019/5/2
+     */
+    @GetMapping("sku/list/ids")
+    public ResponseEntity<List<Sku>> querySkuBySpuId(@RequestParam("ids") List<Long> ids) {
+        List<Sku> skus = this.goodsService.querySkuBySpuIds(ids);
+
+        return ResponseEntity.ok(skus);
+    }
 }

@@ -13,6 +13,8 @@ import com.leyou.item.pojo.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -22,6 +24,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /*
  *功能描述
@@ -238,5 +241,23 @@ public class GoodsService {
         //查询deatil
         spu.setSpuDetail(querySpuDetailById(id));
         return spu;
+    }
+
+    public List<Sku> querySkuBySpuIds(List<Long> ids) {
+        List<Sku> skus = skuMapper.selectByIdList(ids);
+        if(CollectionUtils.isEmpty(skus)){
+            throw  new LyException(ExceptionEnum.CATEGORY_NOT_FONO) ;
+        }
+        //查询库存
+        List<Stock> stocksList = stockMapper.selectByIdList(ids);
+        if(CollectionUtils.isEmpty(stocksList)){
+            throw  new LyException(ExceptionEnum.GOODS_NOT_FOUND) ;
+        }
+        //我们把stock变成一个map，其key是：sku的id  ，值是库存
+        Map<Long,Integer> stockMap = stocksList.stream()
+                .collect(Collectors.toMap(Stock::getSkuId,Stock::getStock));
+        skus.forEach(s -> s.setStock(stockMap.get(s.getId())));
+        return  skus;
+
     }
 }

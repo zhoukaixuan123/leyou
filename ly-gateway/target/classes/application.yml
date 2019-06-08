@@ -13,10 +13,15 @@ zuul:
       item-service: /item/**
       search-service: /search/**
       user-service: /user/**
+      auth-service: /auth/**
+      cart-service: /cart/**
       upload-service:
           path: /upload/**
           serviceId: upload-service
           strip-prefix: false  #去掉前缀
+  sensitive-headers:          # 覆盖过滤器中的头
+  add-host-header: true  #添加host头
+
 ribbon:
   ConnectTimeout: 1000 # 连接超时时间(ms)
   ReadTimeout: 1000 # 通信超时时间(ms)
@@ -29,3 +34,16 @@ hystrix:
         isolation:
           thread:
             timeoutInMillisecond: 1000 # 熔断超时时长：10000ms
+ly:
+  jwt:
+    pubKeyPath: F:/upload/id_rsa.pub # 公钥地址
+    cookieName: LY_TOKEN
+     #这样写叫集合
+  filter:
+    allowPaths:
+    - /api/auth
+    - /api/search
+    - /api/user/register
+    - /api/user/check
+    - /api/user/code
+    - /api/item
