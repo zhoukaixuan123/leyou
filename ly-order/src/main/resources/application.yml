@@ -42,5 +42,13 @@ ly:
   worker:
       workerId: 1
       dataCenterId: 1
+  pay:
+    appId: wx8397f8696b538317
+    mchId: 1473426802
+    key: T6m9iK73b0kn9g5v426MKfHQH7X8rKwb
+    connectTimeoutMs: 1000
+    readTimeoutMs: 8000
+    notifyUrl:  http://qymk3m.natappfree.cc/notify/pay
+
 
 

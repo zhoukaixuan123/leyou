@@ -32,7 +32,15 @@ public enum ExceptionEnum {
     USER_NOTFOUND(400,"用户未授权"),
     CART_NOT_FOUND(404,"购物车为空"),
     CREATE_ORDER_ERROR(400,"创建订单失败"),
-    STOCK_NOT_FOUNT(400,"减库存失败")
+    STOCK_NOT_FOUNT(400,"减库存失败"),
+    ORDER_NOT_FOUND(400,"订单不存在"),
+    DETAIL_NOT_FOUND(400,"订单详情不存在"),
+    ORDERSTATUS_NOT_FOUND(400,"订单状态不存在"),
+    WX_PAY_ORDER_FAIL(400,"通讯失败"),
+    ORDER_STATS_ERROR(400,"订单有误"),
+    QM_ERROR(400,"签名异常"),
+    MINVALID_ORER_PABAM(400,"校验金额异常"),
+    UPDATE_ORDER_STATUTS_ERROR(400,"更新订单失败")
     ;
 
 

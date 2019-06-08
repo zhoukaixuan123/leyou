@@ -1,13 +1,11 @@
 package com.leyou.order.controller;
 
 import com.leyou.order.dto.OrderDto;
+import com.leyou.order.pojo.Order;
 import com.leyou.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 功能描述
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @description $
  */
 @RestController
-@RequestMapping
+@RequestMapping("order")
 public class OrderController {
 
     @Autowired
@@ -36,4 +34,42 @@ public class OrderController {
 
         return  ResponseEntity.ok(orderService.createOrder(orderDto));
     }
+
+    /*** 
+    * @Description: 查询订单信息
+    * @Param: [id] 
+    * @return: org.springframework.http.ResponseEntity<com.leyou.order.pojo.Order> 
+    * @Author: zhoukx
+    * @Date: 2019/6/9 
+    */ 
+    @GetMapping("{id}")
+    public  ResponseEntity<Order> querOrderById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(orderService.querOrderById(id));
+    }
+    
+    /*** 
+    * @Description: 微信接口调用
+    * @Param: [orderId] 
+    * @return: org.springframework.http.ResponseEntity<java.lang.String> 
+    * @Author: zhoukx
+    * @Date: 2019/6/9 
+    */ 
+    @GetMapping("url/{id}")
+    public ResponseEntity<String> createPayUrl(@PathVariable("id") Long orderId){
+        String orderPayUrl = orderService.createOrderPayUrl(orderId);
+        return  ResponseEntity.ok(orderPayUrl);
+    }
+
+    /***
+    * @Description: 查询订单的状态
+    * @Param: [orderId]
+    * @return: org.springframework.http.ResponseEntity<java.lang.Integer>
+    * @Author: zhoukx
+    * @Date: 2019/6/9
+    */
+    @GetMapping("/state/{id}")
+    public ResponseEntity<Integer> quertOrderState(@PathVariable("id") Long orderId){
+        return  ResponseEntity.ok(orderService.quertOrderState(orderId));
+    }
+
 }
